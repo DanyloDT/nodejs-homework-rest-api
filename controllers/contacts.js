@@ -3,8 +3,17 @@ const { ctrlWrapper } = require("../decorators");
 const Contact = require("../models/Contact");
 
 const getAllContacts = async (req, res) => {
-  const result = await Contact.find();
-  res.json(result);
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 20, favorite } = req.query;
+  const skip = (page - 1) * limit;
+  const result = await Contact.find({ owner }, "-createdAt -updatedAt", {
+    skip,
+    limit,
+  }).populate("owner", "email");
+  const filterContacts = favorite
+    ? result.filter((contact) => contact.favorite.toString() === favorite)
+    : result;
+  res.json(filterContacts);
 };
 
 const getByIdContact = async (req, res) => {
@@ -17,7 +26,8 @@ const getByIdContact = async (req, res) => {
 };
 
 const addNewContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 
