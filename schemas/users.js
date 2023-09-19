@@ -25,6 +25,12 @@ const userSigninSchema = Joi.object({
   }),
 });
 
+const userEmailSchema = Joi.object({
+  email: Joi.string().required().messages({
+    "any.required": "missing required email field",
+  }),
+});
+
 const updateSubscriptionSchema = Joi.object({
   subscription: Joi.string()
     .valid(...subscriptionList)
@@ -37,4 +43,5 @@ module.exports = {
   userSignupSchema,
   userSigninSchema,
   updateSubscriptionSchema,
+  userEmailSchema,
 };
